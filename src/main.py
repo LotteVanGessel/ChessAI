@@ -15,9 +15,11 @@ class Main:
     def main_loop(self) -> None:
         while True:
             self.game.show_bg(surface = self.screen)
+            self.game.show_moves(self.screen)
             self.game.show_pieces(surface=self.screen)
             if self.game.dragger.dragging:
                 self.game.dragger.update_blit(self.screen)
+            
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.game.dragger.update_mouse(event.pos)
@@ -25,13 +27,18 @@ class Main:
                     clicked_col = self.game.dragger.mouseX // SQUARESIZE
                     if self.game.board.squares[clicked_row][clicked_col].has_piece():
                         piece = self.game.board.squares[clicked_row][clicked_col].piece
+                        self.game.board.calc_moves(piece, clicked_row, clicked_col)
                         self.game.dragger.save_inital(event.pos)
                         self.game.dragger.drag_piece(piece)
+                        self.game.show_bg(self.screen)
+                        self.game.show_moves(self.screen)
+                        self.game.show_pieces(self.screen)
 
                 elif event.type == pygame.MOUSEMOTION:
                     if self.game.dragger.dragging:
                         self.game.dragger.update_mouse(event.pos)
                         self.game.show_bg(self.screen)
+                        self.game.show_moves(self.screen)
                         self.game.show_pieces(self.screen)
                         self.game.dragger.update_blit(self.screen) 
 
