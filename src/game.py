@@ -9,7 +9,11 @@ class Game:
     def __init__(self) -> None:
         self.board = Board()
         self.dragger = Dragger()
+        self.next_player = "white"
 
+    def next_turn(self):
+        self.next_player = "black" if self.next_player == "white" else "white"
+        
     # show methods
     @staticmethod
     def show_bg(surface)->None:

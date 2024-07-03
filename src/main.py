@@ -29,12 +29,13 @@ class Main:
                     clicked_col = self.game.dragger.mouseX // SQUARESIZE
                     if self.game.board.squares[clicked_row][clicked_col].has_piece():
                         piece = self.game.board.squares[clicked_row][clicked_col].piece
-                        self.game.board.calc_moves(piece, clicked_row, clicked_col)
-                        self.game.dragger.save_inital(event.pos)
-                        self.game.dragger.drag_piece(piece)
-                        self.game.show_bg(self.screen)
-                        self.game.show_moves(self.screen)
-                        self.game.show_pieces(self.screen)
+                        if piece.color == self.game.next_player:
+                            self.game.board.calc_moves(piece, clicked_row, clicked_col)
+                            self.game.dragger.save_inital(event.pos)
+                            self.game.dragger.drag_piece(piece)
+                            self.game.show_bg(self.screen)
+                            self.game.show_moves(self.screen)
+                            self.game.show_pieces(self.screen)
 
                 elif event.type == pygame.MOUSEMOTION:
                     if self.game.dragger.dragging:
@@ -57,6 +58,7 @@ class Main:
                             self.game.board.move(self.game.dragger.piece, move)
                             self.game.show_bg(self.screen)
                             self.game.show_pieces(self.screen)
+                            self.game.next_turn()
                         self.game.dragger.undrag_piece()
 
                 elif event.type == pygame.QUIT:
