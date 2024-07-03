@@ -73,12 +73,12 @@ class Board:
                         initial = Square(row, col)
                         final = Square(move_row, move_col)
                         move = Move(initial, final)
-                        if self.squares[move_row][move_row].isempty():
+                        if self.squares[move_row][move_col].isempty():
                             piece.add_move(move)
-                        if self.squares[move_row][move_row].has_rival_piece(piece.color):
+                        if self.squares[move_row][move_col].has_rival_piece(piece.color):
                             piece.add_move(move)
                             break
-                        if self.squares[move_row][move_row].has_team_piece(piece.color):
+                        if self.squares[move_row][move_col].has_team_piece(piece.color):
                             break
                     else: break
                     move_row, move_col = move_row + row_incr, move_col + col_incr
