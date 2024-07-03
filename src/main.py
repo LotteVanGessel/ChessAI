@@ -2,6 +2,8 @@ import pygame
 import sys
 from const import WIDTH, HEIGHT, SQUARESIZE
 from game import Game
+from square import Square
+from move import Move
 
 
 class Main:
@@ -44,7 +46,19 @@ class Main:
 
 
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    self.game.dragger.undrag_piece()
+                    if self.game.dragger.dragging:
+                        self.game.dragger.update_mouse(event.pos)
+                        clicked_row = self.game.dragger.mouseY // SQUARESIZE
+                        clicked_col = self.game.dragger.mouseX // SQUARESIZE     
+                        initial = Square(self.game.dragger.initial_row, self.game.dragger.initial_col)
+                        final = Square(clicked_row, clicked_col)
+                        move = Move(initial, final)
+                        if self.game.board.valid_move(self.game.dragger.piece, move):
+                            self.game.board.move(self.game.dragger.piece, move)
+                            self.game.show_bg(self.screen)
+                            self.game.show_pieces(self.screen)
+                        self.game.dragger.undrag_piece()
+
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()

@@ -7,11 +7,26 @@ class Board:
 
     def __init__(self) -> None:
         self.squares = [[0 for _ in range(ROWS)] for _ in range(COLS)]
+        self.last_move = None
         self._create()
         self._add_pieces("white")
         self._add_pieces("black")
 
-    
+    def move(self, piece, move):
+        initial = move.initial
+        final = move.final 
+        
+        self.squares[initial.row][initial.col].piece = None 
+        self.squares[final.row][final.col].piece = piece 
+
+        piece.moved = True
+
+        piece.clear_moves()
+        self.last_move = move
+
+    def valid_move(self, piece, move):
+        return move in piece.moves
+
     def calc_moves(self, piece, row, col):
         def pawn_moves():
             steps = 1 if piece.moved else 2
@@ -37,7 +52,6 @@ class Board:
                         move = Move(initial, final)
                         piece.add_move(move)
 
-        
         def king_knight_moves(directions):
             adjecent = [(row + i, col +j) for i,j in directions]
             for possible_move in adjecent:
@@ -68,6 +82,7 @@ class Board:
                             break
                     else: break
                     move_row, move_col = move_row + row_incr, move_col + col_incr
+        
         if isinstance(piece, Pawn):     pawn_moves()
         elif isinstance(piece, Knight): king_knight_moves([(- 2, 1),(- 2, - 1),(2, 1),(2, - 1),(- 1, 2),(1, 2),(- 1, - 2),(1, - 2)])
         elif isinstance(piece, Bishop): straight_line_moves([(-1, 1), (1, 1), (1, -1), (-1, -1)])

@@ -5,6 +5,9 @@ class Square:
         self.col = col 
         self.piece = piece
 
+    def __eq__(self, value: object) -> bool:
+        return self.row == value.row and self.col == value.col 
+    
     def has_piece(self)-> bool:
         return self.piece != None
     
