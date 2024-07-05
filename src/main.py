@@ -17,7 +17,9 @@ class Main:
     def main_loop(self) -> None:
         while True:
             self.game.show_bg(surface = self.screen)
+            self.game.show_last_move(surface=self.screen)
             self.game.show_moves(self.screen)
+            self.game.show_hover(self.screen)
             self.game.show_pieces(surface=self.screen)
             if self.game.dragger.dragging:
                 self.game.dragger.update_blit(self.screen)
@@ -38,10 +40,15 @@ class Main:
                             self.game.show_pieces(self.screen)
 
                 elif event.type == pygame.MOUSEMOTION:
+                    motion_row = event.pos[1] // SQUARESIZE
+                    motion_col = event.pos[0] // SQUARESIZE
+                    self.game.set_hover(motion_row, motion_col)
                     if self.game.dragger.dragging:
                         self.game.dragger.update_mouse(event.pos)
                         self.game.show_bg(self.screen)
+                        self.game.show_last_move(self.screen)
                         self.game.show_moves(self.screen)
+                        self.game.show_hover(self.screen)
                         self.game.show_pieces(self.screen)
                         self.game.dragger.update_blit(self.screen) 
 
@@ -57,6 +64,7 @@ class Main:
                         if self.game.board.valid_move(self.game.dragger.piece, move):
                             self.game.board.move(self.game.dragger.piece, move)
                             self.game.show_bg(self.screen)
+                            self.game.show_last_move(self.screen)
                             self.game.show_pieces(self.screen)
                             self.game.next_turn()
                         self.game.dragger.undrag_piece()
