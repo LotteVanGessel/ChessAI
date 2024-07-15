@@ -73,6 +73,9 @@ class Main:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_t:
                         self.game.change_theme()
+                    elif event.key == pygame.K_r:
+                        self.game.reset()
+                    
                 elif event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
