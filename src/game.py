@@ -78,7 +78,8 @@ class Game:
             pygame.draw.rect(surface, color, rect, width=3)
 
     def set_hover(self, row, col):
-        self.hovered_sqr = self.board.squares[row][col]
+        if Square.in_range(row, col):
+            self.hovered_sqr = self.board.squares[row][col]
 
     def change_theme(self):
         self.config.change_theme()
