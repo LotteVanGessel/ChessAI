@@ -24,13 +24,22 @@ class Board:
         if isinstance(piece, Pawn):
             self.check_promotion(piece, final)
 
+        if isinstance(piece, King):
+            if self.castling(initial, final):
+                diff = final.col - initial.col 
+                rook = piece.left_rook if (diff < 0) else piece.right_rook
+                self.move(rook, rook.moves[-1])
+
         piece.clear_moves()
         self.last_move = move
 
     def check_promotion(self, piece, final):
         if final.row == 0 or final.row ==7:
             self.squares[final.row][final.col].piece = Queen(piece.color)
-         
+
+    def castling(self, initial, final):
+        return abs(initial.col - final.col) == 2
+       
     def valid_move(self, piece, move):
         return move in piece.moves
 
@@ -70,6 +79,47 @@ class Board:
                         move = Move(initial, final)
                         piece.add_move(move)
 
+        def castling(piece, row):
+            if not piece.moved:
+                left_rook = self.squares[row][0].piece
+                if isinstance(left_rook, Rook):
+                    if not left_rook.moved:
+                        for c in range(1, 4):
+                            if self.squares[row][c].has_piece():
+                                break
+                            if c == 3:
+                                piece.left_rook = left_rook 
+
+                                initial = Square(row, 0)
+                                final = Square(row, 3)
+                                move = Move(initial, final)
+                                left_rook.add_move(move)
+
+                                initial = Square(row, col)
+                                final = Square(row, 2)
+                                move = Move(initial, final)
+                                piece.add_move(move)
+                                
+                right_rook = self.squares[row][7].piece
+                if isinstance(right_rook, Rook):
+                    if not right_rook.moved:
+                        for c in range(5, 7):
+                            if self.squares[row][c].has_piece():
+                                break
+                            if c == 6:
+                                piece.right_rook = right_rook 
+
+                                initial = Square(row, 7)
+                                final = Square(row, 5)
+                                move = Move(initial, final)
+                                right_rook.add_move(move)
+
+                                initial = Square(row, col)
+                                final = Square(row, 6)
+                                move = Move(initial, final)
+                                piece.add_move(move)
+
+                            
         def straight_line_moves(incrs):
             for incr in incrs:
                 row_incr, col_incr = incr
@@ -95,7 +145,7 @@ class Board:
         elif isinstance(piece, Bishop): straight_line_moves([(-1, 1), (1, 1), (1, -1), (-1, -1)])
         elif isinstance(piece, Rook):   straight_line_moves([(1, 0), (-1, 0), (0, 1), (0, -1)])
         elif isinstance(piece, Queen):  straight_line_moves([(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)])
-        elif isinstance(piece, King):   king_knight_moves([(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)])
+        elif isinstance(piece, King):   king_knight_moves([(1, 0), (-1, 0), (0, 1), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)]) ; castling(piece, row)
 
     def _create(self):
         for row in range(ROWS):
