@@ -1,8 +1,9 @@
 class Move:
 
-    def __init__(self, initial, final) -> None:
+    def __init__(self, initial, final, final_piece = None) -> None:
         self.initial = initial
         self.final = final 
+        self.final_piece = final_piece
         
 
     def __eq__(self, value) -> bool:
