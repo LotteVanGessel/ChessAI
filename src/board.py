@@ -2,6 +2,8 @@ from const import COLS, ROWS
 from square import Square
 from piece import * 
 from move import Move
+from sound import Sound
+import os
 import copy
 
 class Board:
@@ -13,17 +15,28 @@ class Board:
         self._add_pieces("white")
         self._add_pieces("black")
 
-    def move(self, piece, move):
+    def move(self, piece, move, testing = False):
         initial = move.initial
         final = move.final 
-        
+        en_passant_empty = self.squares[final.row][final.col].isempty()
         self.squares[initial.row][initial.col].piece = None 
         self.squares[final.row][final.col].piece = piece 
 
         piece.moved = True
 
         if isinstance(piece, Pawn):
-            self.check_promotion(piece, final)
+            diff = final.col - initial.col
+            if diff != 0 and en_passant_empty:
+                diff = final.col - initial.col
+                self.squares[initial.row][initial.col + diff].piece = None 
+                self.squares[final.row][final.col].piece = piece 
+                if not testing:
+                    sound = Sound(
+                        os.path.join("./assets/sounds/capture.wav")
+                    )
+                    sound.play()
+            else:
+                self.check_promotion(piece, final)
 
         if isinstance(piece, King):
             if self.castling(initial, final):
@@ -40,11 +53,20 @@ class Board:
 
     def castling(self, initial, final):
         return abs(initial.col - final.col) == 2
-       
-    def in_check(self, piece, move):
+    
+    def set_true_en_passant(self, piece):
+        if not isinstance(piece, Pawn):
+            return 
+        for row in range(ROWS):
+            for col in range(COLS):
+                if isinstance(self.squares[row][col].piece, Pawn):
+                    self.squares[row][col].piece.en_passant = False
+        piece.en_passant = True
+
+    def in_check(self, piece, move): 
         temp_piece = copy.deepcopy(piece)
         temp_board = copy.deepcopy(self)
-        temp_board.move(temp_piece, move)
+        temp_board.move(temp_piece, move, True)
         for row in range(ROWS):
             for col in range(COLS):
                 if temp_board.squares[row][col].has_rival_piece(temp_piece.color):
@@ -92,7 +114,34 @@ class Board:
                                 piece.add_move(move)
                         else:
                             piece.add_move(move)
-                            
+            r = 3 if piece.color =="white" else 4
+            fr = 2 if piece.color == "white" else 5
+            if Square.in_range(col - 1) and row==r:
+                if self.squares[row][col-1].has_rival_piece(piece.color):
+                    p = self.squares[row][col - 1].piece
+                    if isinstance(p, Pawn):
+                        if p.en_passant:
+                            initial = Square(row, col)
+                            final = Square(fr, col - 1)
+                            move = Move(initial, final, p)
+                            if bool:
+                                if not self.in_check(piece,  move):
+                                    piece.add_move(move)
+                            else:
+                                piece.add_move(move)
+            if Square.in_range(col + 1):
+                if self.squares[row][col+1].has_rival_piece(piece.color):
+                    p = self.squares[row][col + 1].piece
+                    if isinstance(p, Pawn):
+                        if p.en_passant:
+                            initial = Square(row, col)
+                            final = Square(fr, col + 1)
+                            move = Move(initial, final, p)
+                            if bool:
+                                if not self.in_check(piece,  move):
+                                    piece.add_move(move)
+                            else:
+                                piece.add_move(move)
 
         def king_knight_moves(directions):
             adjecent = [(row + i, col +j) for i,j in directions]
